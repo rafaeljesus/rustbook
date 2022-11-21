@@ -58,12 +58,15 @@ impl KVStore {
     }
 }
 
-// design a struct that has the following functions
-// 1. insert a value (no duplicates)
-// 2. removing a value
-// 3. get_random a value that is already inserted (with equal probability)
-// follow up questions:
-// 1. accept duplicate values
+//  design a struct that has the following functions
+//  1. insert a value (no duplicates)
+//      in time O(1) | space O(n)
+//  2. removing a value
+//      in time O(1) | space O(1)
+//  3. get_random a value that is already inserted (with equal probability)
+//      in time O(1) | space O(1)
+//  follow up questions:
+//  1. accept duplicate values
 fn main() {
     let mut kvs = KVStore::new();
     kvs.put(&10).unwrap();
