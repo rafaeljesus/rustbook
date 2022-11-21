@@ -2,11 +2,11 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use std::collections::HashMap;
 
-type Key = i32;
-type Value = i32;
+#[derive(Debug)]
+struct KeyAlreadyExistsError;
 
 struct KVStore {
-    store: HashMap<Key, Value>,
+    store: HashMap<i32, i32>,
     values: Vec<i32>,
 }
 
@@ -19,13 +19,15 @@ impl KVStore {
     }
 
     // time O(1) | space O(n)
-    fn put(&mut self, value: &i32) {
+    fn put(&mut self, value: &i32) -> Result<i32, KeyAlreadyExistsError> {
         match self.store.get(value) {
-            Some(_) => (),
+            Some(_) => Err(KeyAlreadyExistsError),
             None => {
                 self.values.push(*value);
                 let idx = self.values.len() - 1;
-                self.store.insert(*value, idx as i32);
+                self.store
+                    .insert(*value, idx as i32)
+                    .ok_or_else(|| KeyAlreadyExistsError)
             }
         }
     }
@@ -48,7 +50,7 @@ impl KVStore {
             None => false,
         }
     }
-    
+
     // time O(1) | space O(1)
     fn get_random(&mut self) -> &i32 {
         let mut rng = thread_rng();
@@ -64,11 +66,11 @@ impl KVStore {
 // 1. accept duplicate values
 fn main() {
     let mut kvs = KVStore::new();
-    kvs.put(&10);
+    kvs.put(&10).unwrap();
     assert_eq!(kvs.get_random(), &10);
     assert_eq!(kvs.delete(&10), true);
     assert_eq!(kvs.delete(&2), false);
 
-    kvs.put(&11);
+    kvs.put(&11).unwrap();
     assert_eq!(kvs.delete(&11), true);
 }
