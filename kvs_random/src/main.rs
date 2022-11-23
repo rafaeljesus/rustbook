@@ -19,42 +19,46 @@ impl KVStore {
     }
 
     // time O(1) | space O(n)
-    fn put(&mut self, value: &i32) -> Result<i32, KeyAlreadyExistsError> {
-        match self.store.get(value) {
+    fn put(&mut self, value: i32) -> Result<i32, KeyAlreadyExistsError> {
+        match self.store.get(&value) {
             Some(_) => Err(KeyAlreadyExistsError),
             None => {
-                self.values.push(*value);
+                self.values.push(value);
+                // TODO use match last()
                 let idx = self.values.len() - 1;
                 self.store
-                    .insert(*value, idx as i32)
+                    .insert(value, idx as i32)
                     .ok_or_else(|| KeyAlreadyExistsError)
             }
         }
     }
 
     // time O(1) | space O(1)
-    fn delete(&mut self, value: &i32) -> bool {
-        if self.values.is_empty() {
-            return false;
-        }
-        let last = self.values.len() - 1;
-        let idx = match self.store.get_key_value(value) {
-            Some((_, v)) => *v,
-            None => -1,
+    fn delete(&mut self, value: i32) -> bool {
+        let last = match self.values.last() {
+            Some(last) => last.clone(),
+            None => return false,
         };
-        self.values[last] = *value;
-        self.values[idx as usize] = last as i32;
+        let idx = match self.store.get_key_value(&value) {
+            Some((_, v)) => v,
+            None => return false,
+        };
+        self.values[last as usize] = value;
+        self.values[*idx as usize] = last;
         self.values.pop();
-        match self.store.remove(value) {
+        match self.store.remove(&value) {
             Some(_) => true,
             None => false,
         }
     }
 
     // time O(1) | space O(1)
-    fn get_random(&mut self) -> &i32 {
+    fn get_random(&mut self) -> i32 {
         let mut rng = thread_rng();
-        self.values.choose(&mut rng).unwrap()
+        match self.values.choose(&mut rng) {
+            Some(value) => *value,
+            None => -1,
+        }
     }
 }
 
@@ -69,11 +73,11 @@ impl KVStore {
 //  1. accept duplicate values
 fn main() {
     let mut kvs = KVStore::new();
-    kvs.put(&10).unwrap();
-    assert_eq!(kvs.get_random(), &10);
-    assert_eq!(kvs.delete(&10), true);
-    assert_eq!(kvs.delete(&2), false);
+    kvs.put(10).unwrap();
+    assert_eq!(kvs.get_random(), 10);
+    assert_eq!(kvs.delete(10), true);
+    assert_eq!(kvs.delete(2), false);
 
-    kvs.put(&11).unwrap();
-    assert_eq!(kvs.delete(&11), true);
+    kvs.put(11).unwrap();
+    assert_eq!(kvs.delete(11), true);
 }
