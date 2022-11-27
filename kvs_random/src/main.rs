@@ -20,9 +20,8 @@ impl KVStore {
 
     // time O(1) | space O(n)
     fn put(&mut self, value: i32) -> Result<i32, KeyAlreadyExistsError> {
-        match self.store.get(&value) {
-            Some(_) => return Err(KeyAlreadyExistsError),
-            None => (),
+        if let Some(_) = self.store.get(&value) {
+            return Err(KeyAlreadyExistsError);
         }
         self.values.push(value);
         let idx = self.values.len() - 1;
@@ -45,6 +44,7 @@ impl KVStore {
         let last_idx = self.values.len() - 1;
         self.values[last_idx as usize] = value;
         self.values[*idx as usize] = last;
+        // TODO update the map=idx
         self.values.pop();
         match self.store.remove(&value) {
             Some(_) => true,
