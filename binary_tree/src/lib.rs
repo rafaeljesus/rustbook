@@ -18,13 +18,6 @@ pub fn invert_tree(node: &mut Option<Box<Node>>) {
     }
 }
 
-pub fn sum_tree(node: Option<Box<Node>>) -> i32 {
-    match node {
-        Some(node) => node.value + sum_tree(node.left) + sum_tree(node.right),
-        None => 0,
-    } 
-}
-
 pub fn search_tree(node: &Option<Box<Node>>, value: i32) -> i32 {
     match node {
         Some(node) => {
@@ -38,8 +31,25 @@ pub fn search_tree(node: &Option<Box<Node>>, value: i32) -> i32 {
     }
 }
 
-// TODO
-// implement max/min of binary tree
+pub fn sum_tree(node: Option<Box<Node>>) -> i32 {
+    match node {
+        Some(node) => node.value + sum_tree(node.left) + sum_tree(node.right),
+        None => 0,
+    } 
+}
+
+pub fn max_tree(node: Option<Box<Node>>, max: &mut i32) -> i32 {
+    match node {
+        Some(node) => {
+            if &node.value > max {
+                *max = node.value
+            }
+            let mut max_left: i32 = max_tree(node.left, max);
+            max_tree(node.right, &mut max_left)
+        },
+        None => *max,
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -64,13 +74,6 @@ mod tests {
     }
 
     #[test]
-    fn sum_binary_tree() {
-        let tree = build_binary_tree();
-        let sum = sum_tree(tree);
-        assert_eq!(sum, 28);
-    }
-
-    #[test]
     fn search_binary_tree() {
         let tree = build_binary_tree();
         let value_to_search = 1;
@@ -80,6 +83,14 @@ mod tests {
         let value_to_search = 3;
         let value = search_tree(&tree, value_to_search);
         assert_eq!(value, value_to_search);
+    }
+
+    #[test]
+    fn max_binary_tree() {
+        let tree = build_binary_tree();
+        let mut max = 0;
+        let max = max_tree(tree, &mut max);
+        assert_eq!(max, 7);
     }
 
     //        1
