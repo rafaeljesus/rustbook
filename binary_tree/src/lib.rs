@@ -1,3 +1,4 @@
+use std::cmp;
 use std::cmp::Ordering;
 
 #[derive(PartialEq)]
@@ -20,34 +21,39 @@ pub fn invert_tree(node: &mut Option<Box<Node>>) {
 
 pub fn search_tree(node: &Option<Box<Node>>, value: i32) -> i32 {
     match node {
-        Some(node) => {
-            match value.cmp(&node.value) {
-                Ordering::Equal => node.value,
-                Ordering::Less => search_tree(&node.left, value),
-                Ordering::Greater => search_tree(&node.right, value),
-           }
+        Some(node) => match value.cmp(&node.value) {
+            Ordering::Equal => node.value,
+            Ordering::Less => search_tree(&node.left, value),
+            Ordering::Greater => search_tree(&node.right, value),
         },
         None => 0,
     }
 }
 
+// return the sum of all values from the binary tree
 pub fn sum_tree(node: Option<Box<Node>>) -> i32 {
     match node {
         Some(node) => node.value + sum_tree(node.left) + sum_tree(node.right),
         None => 0,
-    } 
+    }
 }
 
+// return the max value from the binary tree
 pub fn max_tree(node: Option<Box<Node>>, max: &mut i32) -> i32 {
     match node {
         Some(node) => {
-            if &node.value > max {
-                *max = node.value
-            }
-            let mut max_left: i32 = max_tree(node.left, max);
-            max_tree(node.right, &mut max_left)
-        },
+            let mut max = cmp::max(node.value, *max);
+            cmp::max(max_tree(node.right, &mut max), max_tree(node.left, &mut max))
+        }
         None => *max,
+    }
+}
+
+// Maximum Depth of Binary Tree https://leetcode.com/problems/maximum-depth-of-binary-tree
+pub fn max_depth_tree(node: Option<Box<Node>>) -> i32 {
+    match node {
+        Some(node) => 1 + cmp::max(max_depth_tree(node.left), max_depth_tree(node.right)),
+        None => 0,
     }
 }
 
@@ -59,7 +65,6 @@ pub fn max_tree(node: Option<Box<Node>>, max: &mut i32) -> i32 {
 // 5. balance binary tree
 // 6. maximum binary tree https://leetcode.com/problems/maximum-binary-tree/
 // 7. Binary Tree Paths https://leetcode.com/problems/binary-tree-paths/
-// 8. Maximum Depth of Binary Tree https://leetcode.com/problems/maximum-depth-of-binary-tree
 // 9. Construct String from Binary Tree https://leetcode.com/problems/construct-string-from-binary-tree
 // 10. Flatten Binary Tree to Linked List https://leetcode.com/problems/flatten-binary-tree-to-linked-list/
 
@@ -77,12 +82,56 @@ mod tests {
         //     / \ / \
         //    7  6 5  4
         assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().value, 3);
-        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().left.as_ref().unwrap().value, 7);
-        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().right.as_ref().unwrap().value, 6);
+        assert_eq!(
+            tree.as_ref()
+                .unwrap()
+                .left
+                .as_ref()
+                .unwrap()
+                .left
+                .as_ref()
+                .unwrap()
+                .value,
+            7
+        );
+        assert_eq!(
+            tree.as_ref()
+                .unwrap()
+                .left
+                .as_ref()
+                .unwrap()
+                .right
+                .as_ref()
+                .unwrap()
+                .value,
+            6
+        );
 
         assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().value, 2);
-        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().left.as_ref().unwrap().value, 5);
-        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().right.as_ref().unwrap().value, 4);
+        assert_eq!(
+            tree.as_ref()
+                .unwrap()
+                .right
+                .as_ref()
+                .unwrap()
+                .left
+                .as_ref()
+                .unwrap()
+                .value,
+            5
+        );
+        assert_eq!(
+            tree.as_ref()
+                .unwrap()
+                .right
+                .as_ref()
+                .unwrap()
+                .right
+                .as_ref()
+                .unwrap()
+                .value,
+            4
+        );
     }
 
     #[test]
@@ -110,6 +159,13 @@ mod tests {
         let mut max = 0;
         let max = max_tree(tree, &mut max);
         assert_eq!(max, 7);
+    }
+
+    #[test]
+    fn max_depth_binary_tree() {
+        let tree = build_binary_tree();
+        let max_depth = max_depth_tree(tree);
+        assert_eq!(max_depth, 3);
     }
 
     //        1
