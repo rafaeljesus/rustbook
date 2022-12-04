@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[derive(PartialEq)]
 pub struct Node {
     value: i32,
@@ -16,18 +18,77 @@ pub fn invert_tree(node: &mut Option<Box<Node>>) {
     }
 }
 
+pub fn sum_tree(node: Option<Box<Node>>) -> i32 {
+    match node {
+        Some(node) => node.value + sum_tree(node.left) + sum_tree(node.right),
+        None => 0,
+    } 
+}
+
+pub fn search_tree(node: &Option<Box<Node>>, value: i32) -> i32 {
+    match node {
+        Some(node) => {
+            match value.cmp(&node.value) {
+                Ordering::Equal => node.value,
+                Ordering::Less => search_tree(&node.left, value),
+                Ordering::Greater => search_tree(&node.right, value),
+           }
+        },
+        None => 0,
+    }
+}
+
+// TODO
+// implement max/min of binary tree
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn invert_binary_tree() {
+        let mut tree = build_binary_tree();
+        invert_tree(&mut tree);
         //        1
         //       / \
-        //      2   3
+        //      3   2
         //     / \ / \
-        //    4  5 6  7
-        let mut tree = Some(Box::new(Node {
+        //    7  6 5  4
+        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().value, 3);
+        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().left.as_ref().unwrap().value, 7);
+        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().right.as_ref().unwrap().value, 6);
+
+        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().value, 2);
+        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().left.as_ref().unwrap().value, 5);
+        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().right.as_ref().unwrap().value, 4);
+    }
+
+    #[test]
+    fn sum_binary_tree() {
+        let tree = build_binary_tree();
+        let sum = sum_tree(tree);
+        assert_eq!(sum, 28);
+    }
+
+    #[test]
+    fn search_binary_tree() {
+        let tree = build_binary_tree();
+        let value_to_search = 1;
+        let value = search_tree(&tree, value_to_search);
+        assert_eq!(value, value_to_search);
+
+        let value_to_search = 3;
+        let value = search_tree(&tree, value_to_search);
+        assert_eq!(value, value_to_search);
+    }
+
+    //        1
+    //       / \
+    //      2   3
+    //     / \ / \
+    //    4  5 6  7
+    fn build_binary_tree() -> Option<Box<Node>> {
+        Some(Box::new(Node {
             value: 1,
             left: Some(Box::new(Node {
                 value: 2,
@@ -55,19 +116,6 @@ mod tests {
                     right: None,
                 })),
             })),
-        }));
-        invert_tree(&mut tree);
-        //        1
-        //       / \
-        //      3   2
-        //     / \ / \
-        //    7  6 5  4
-        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().value, 3);
-        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().left.as_ref().unwrap().value, 7);
-        assert_eq!(tree.as_ref().unwrap().left.as_ref().unwrap().right.as_ref().unwrap().value, 6);
-
-        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().value, 2);
-        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().left.as_ref().unwrap().value, 5);
-        assert_eq!(tree.as_ref().unwrap().right.as_ref().unwrap().right.as_ref().unwrap().value, 4);
+        }))
     }
 }
