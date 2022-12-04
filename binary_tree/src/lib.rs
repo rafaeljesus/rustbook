@@ -51,6 +51,18 @@ pub fn max_tree(node: Option<Box<Node>>, max: &mut i32) -> i32 {
     }
 }
 
+// TODO
+// 1. implement insert/delete in binary tree
+// 2. convert binary tree to array
+// 3. concert array to binary tree
+// 4. flatten binary tree
+// 5. balance binary tree
+// 6. maximum binary tree https://leetcode.com/problems/maximum-binary-tree/
+// 7. Binary Tree Paths https://leetcode.com/problems/binary-tree-paths/
+// 8. Maximum Depth of Binary Tree https://leetcode.com/problems/maximum-depth-of-binary-tree
+// 9. Construct String from Binary Tree https://leetcode.com/problems/construct-string-from-binary-tree
+// 10. Flatten Binary Tree to Linked List https://leetcode.com/problems/flatten-binary-tree-to-linked-list/
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -83,6 +95,13 @@ mod tests {
         let value_to_search = 3;
         let value = search_tree(&tree, value_to_search);
         assert_eq!(value, value_to_search);
+    }
+
+    #[test]
+    fn sum_binary_tree() {
+        let tree = build_binary_tree();
+        let sum = sum_tree(tree);
+        assert_eq!(sum, 28);
     }
 
     #[test]
