@@ -1,5 +1,6 @@
 use std::cmp;
 use std::cmp::Ordering;
+use std::collections::VecDeque;
 
 #[derive(PartialEq)]
 pub struct Node {
@@ -43,18 +44,46 @@ pub fn max_tree(node: Option<Box<Node>>, max: &mut i32) -> i32 {
     match node {
         Some(node) => {
             let mut max = cmp::max(node.value, *max);
-            cmp::max(max_tree(node.right, &mut max), max_tree(node.left, &mut max))
+            cmp::max(
+                max_tree(node.right, &mut max),
+                max_tree(node.left, &mut max),
+            )
         }
         None => *max,
     }
 }
 
-// Maximum Depth of Binary Tree https://leetcode.com/problems/maximum-depth-of-binary-tree
+// maximum depth of binary tree https://leetcode.com/problems/maximum-depth-of-binary-tree
+// DFS: Time O(n) | Space O(n)
 pub fn max_depth_tree(node: Option<Box<Node>>) -> i32 {
     match node {
         Some(node) => 1 + cmp::max(max_depth_tree(node.left), max_depth_tree(node.right)),
         None => 0,
     }
+}
+
+// maximum depth of binary tree https://leetcode.com/problems/maximum-depth-of-binary-tree
+// BFS: Time O(n) | Space O(n)
+pub fn max_depth_tree_bfs(node: Option<Box<Node>>) -> i32 {
+    let node = match node {
+        Some(n) => n,
+        None => return 0,
+    };
+    let mut depth = 0;
+    let mut queue = VecDeque::from([&node]);
+    while !queue.is_empty() {
+        for _ in 0..queue.len() {
+            let current = queue.pop_front();
+            if let Some(left) = &current.as_ref().unwrap().left {
+                queue.push_back(left);
+            }
+            if let Some(right) = &current.as_ref().unwrap().right {
+                queue.push_back(right);
+            }
+        }
+        depth += 1; // inc per node level
+    }
+    return depth;
 }
 
 // TODO
@@ -165,6 +194,13 @@ mod tests {
     fn max_depth_binary_tree() {
         let tree = build_binary_tree();
         let max_depth = max_depth_tree(tree);
+        assert_eq!(max_depth, 3);
+    }
+
+    #[test]
+    fn max_depth_binary_tree_bfs() {
+        let tree = build_binary_tree();
+        let max_depth = max_depth_tree_bfs(tree);
         assert_eq!(max_depth, 3);
     }
 
