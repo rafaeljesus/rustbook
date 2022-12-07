@@ -21,14 +21,15 @@ pub fn invert_tree(node: &mut Option<Box<Node>>) {
 }
 
 pub fn search_tree(node: &Option<Box<Node>>, value: i32) -> i32 {
-    match node {
-        Some(node) => match value.cmp(&node.value) {
-            Ordering::Equal => node.value,
-            Ordering::Less => search_tree(&node.left, value),
-            Ordering::Greater => search_tree(&node.right, value),
-        },
-        None => 0,
-    }
+    let node = match node {
+        Some(node) => node,
+        None => return 0,
+    };
+    return match value.cmp(&node.value) {
+        Ordering::Equal => node.value,
+        Ordering::Less => search_tree(&node.left, value),
+        Ordering::Greater => search_tree(&node.right, value),
+    };
 }
 
 // return the sum of all values from the binary tree
