@@ -2,7 +2,7 @@ use std::cmp;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct Node {
     value: i32,
     left: Option<Box<Node>>,
@@ -73,17 +73,40 @@ pub fn max_depth_tree_bfs(node: Option<Box<Node>>) -> i32 {
     let mut queue = VecDeque::from([&node]);
     while !queue.is_empty() {
         for _ in 0..queue.len() {
-            let current = queue.pop_front();
-            if let Some(left) = &current.as_ref().unwrap().left {
-                queue.push_back(left);
-            }
-            if let Some(right) = &current.as_ref().unwrap().right {
-                queue.push_back(right);
+            if let Some(current) = queue.pop_front() {
+                if let Some(left) = &current.as_ref().left {
+                    queue.push_back(left);
+                }
+                if let Some(right) = &current.as_ref().right {
+                    queue.push_back(right);
+                }
             }
         }
         depth += 1; // inc per node level
     }
     return depth;
+}
+
+pub fn max_depth_tree_iterative_dfs(node: Option<Box<Node>>) -> i32 {
+    let node = match node {
+        Some(n) => n,
+        None => return 0,
+    };
+    let mut max_depth = 0;
+    let mut stack = VecDeque::from([(&node, max_depth)]);
+    while !stack.is_empty() {
+        if let Some((current, mut depth)) = stack.pop_back() {
+            depth += 1;
+            max_depth = cmp::max(max_depth, depth);
+            if let Some(left) = &current.as_ref().left {
+                stack.push_back((&left, depth));
+            };
+            if let Some(right) = &current.as_ref().right {
+                stack.push_back((&right, depth));
+            };
+        };
+    }
+    return max_depth;
 }
 
 // TODO
@@ -204,6 +227,17 @@ mod tests {
         assert_eq!(max_depth, 3);
     }
 
+    #[test]
+    fn max_depth_binary_tree_iterative_dfs() {
+        let tree = build_binary_tree();
+        let max_depth = max_depth_tree_iterative_dfs(tree);
+        assert_eq!(max_depth, 3);
+
+        let unbalanced_tree = build_unbalanced_binary_tree();
+        let max_depth = max_depth_tree_iterative_dfs(unbalanced_tree);
+        assert_eq!(max_depth, 3);
+    }
+
     //        1
     //       / \
     //      2   3
@@ -229,6 +263,35 @@ mod tests {
                 value: 3,
                 left: Some(Box::new(Node {
                     value: 6,
+                    left: None,
+                    right: None,
+                })),
+                right: Some(Box::new(Node {
+                    value: 7,
+                    left: None,
+                    right: None,
+                })),
+            })),
+        }))
+    }
+
+    //        3
+    //       / \
+    //      9   20
+    //          / \
+    //         15  7
+    fn build_unbalanced_binary_tree() -> Option<Box<Node>> {
+        Some(Box::new(Node {
+            value: 3,
+            left: Some(Box::new(Node {
+                value: 9,
+                left: None,
+                right: None,
+            })),
+            right: Some(Box::new(Node {
+                value: 20,
+                left: Some(Box::new(Node {
+                    value: 15,
                     left: None,
                     right: None,
                 })),
