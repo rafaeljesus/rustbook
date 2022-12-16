@@ -1,4 +1,6 @@
 // Time: O(n^2) | Space: O(1)
+// the outer while loop will run once for each item in the list,
+// and the inner for loop will also run once for each item in the list.
 pub fn bubble_sort(nums: &mut Vec<i32>) {
     let n = nums.len();
     let mut sorted = true;
@@ -15,8 +17,6 @@ pub fn bubble_sort(nums: &mut Vec<i32>) {
 }
 
 // Time: O(n^2) | Space: O(1)
-// the outer while loop will run once for each item in the list,
-// and the inner for loop will also run once for each item in the list.
 pub fn bubble_sort2(nums: &mut Vec<i32>) {
     let n = nums.len();
     for i in 0..n - 1 {
@@ -64,6 +64,78 @@ fn partition(arr: &mut Vec<i32>, low: usize, high: usize) -> usize {
     i
 }
 
+// Time: O(n logn) | Space: O(n)
+pub fn merge_sort(arr: &mut [i32]) {
+    if arr.len() > 1 {
+        let mid = arr.len() / 2;
+        // sort the left half
+        merge_sort(&mut arr[..mid]);
+        // sort the right half
+        merge_sort(&mut arr[mid..]);
+        // merge sorted halfs
+        merge(arr, mid);
+    }
+}
+
+fn merge(arr: &mut [i32], mid: usize) {
+    let mut left_index = 0;
+    let mut right_index = mid;
+    let mut temp = Vec::with_capacity(arr.len());
+
+    while left_index < mid && right_index < arr.len() {
+        if arr[left_index] <= arr[right_index] {
+            temp.push(arr[left_index]);
+            left_index += 1;
+        } else {
+            temp.push(arr[right_index]);
+            right_index += 1;
+        }
+    }
+
+    if left_index < mid {
+        temp.extend_from_slice(&arr[left_index..mid]);
+    } else {
+        temp.extend_from_slice(&arr[right_index..]);
+    }
+
+    arr.copy_from_slice(&temp);
+}
+
+// Time: O(n logn) | Space: O(n)
+pub fn merge_sort2(arr: &mut [i32]) {
+    if arr.len() <= 1 {
+        return;
+    }
+
+    let mid = arr.len() / 2;
+    let mut left = arr[..mid].to_vec();
+    let mut right = arr[mid..].to_vec();
+
+    merge_sort2(&mut left);
+    merge_sort2(&mut right);
+    merge2(arr, &mut left, &mut right);
+}
+
+fn merge2(arr: &mut [i32], left: &mut [i32], right: &mut [i32]) {
+    let mut i = 0;
+    let mut j = 0;
+    for k in 0..arr.len() {
+        if i >= left.len() {
+            arr[k] = right[j];
+            j += 1;
+        } else if j >= right.len() {
+            arr[k] = left[i];
+            i += 1;
+        } else if left[i] < right[j] {
+            arr[k] = left[i];
+            i += 1;
+        } else {
+            arr[k] = right[j];
+            j += 1;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -77,5 +149,13 @@ mod tests {
     }
 
     #[test]
-    fn test_quick_sort() {}
+    fn test_merge_sort() {
+        let mut arr = [5, 2, 4, 6, 1, 3];
+        merge_sort(&mut arr);
+        assert_eq!(arr, [1, 2, 3, 4, 5, 6]);
+
+        let mut arr = [5, 2, 4, 6, 1, 3];
+        merge_sort2(&mut arr);
+        assert_eq!(arr, [1, 2, 3, 4, 5, 6]);
+    }
 }
