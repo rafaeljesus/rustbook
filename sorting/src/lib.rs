@@ -102,37 +102,43 @@ fn merge(arr: &mut [i32], mid: usize) {
 }
 
 // Time: O(n logn) | Space: O(n)
-pub fn merge_sort2(arr: &mut [i32]) {
-    if arr.len() <= 1 {
+pub fn merge_sort2(arr: &mut [i32], s: usize, e: usize) {
+    if e - s + 1 <= 1 {
         return;
     }
-
-    let mid = arr.len() / 2;
-    let mut left = arr[..mid].to_vec();
-    let mut right = arr[mid..].to_vec();
-
-    merge_sort2(&mut left);
-    merge_sort2(&mut right);
-    merge2(arr, &mut left, &mut right);
+    let m = (s + e) / 2;
+    merge_sort2(arr, s, m);
+    merge_sort2(arr, m + 1, e);
+    merge2(arr, s, m, e);
 }
 
-fn merge2(arr: &mut [i32], left: &mut [i32], right: &mut [i32]) {
-    let mut i = 0;
-    let mut j = 0;
-    for k in 0..arr.len() {
-        if i >= left.len() {
-            arr[k] = right[j];
-            j += 1;
-        } else if j >= right.len() {
-            arr[k] = left[i];
-            i += 1;
-        } else if left[i] < right[j] {
-            arr[k] = left[i];
+fn merge2(arr: &mut [i32], s: usize, m: usize, e: usize) {
+    let mut temp = Vec::new();
+    let mut i = s;
+    let mut j = m + 1;
+
+    while i <= m && j <= e {
+        if arr[i] <= arr[j] {
+            temp.push(arr[i]);
             i += 1;
         } else {
-            arr[k] = right[j];
+            temp.push(arr[j]);
             j += 1;
         }
+    }
+
+    while i <= m {
+        temp.push(arr[i]);
+        i += 1;
+    }
+
+    while j <= e {
+        temp.push(arr[j]);
+        j += 1;
+    }
+
+    for (k, v) in temp.iter().enumerate() {
+        arr[s + k] = *v;
     }
 }
 
@@ -155,7 +161,8 @@ mod tests {
         assert_eq!(arr, [1, 2, 3, 4, 5, 6]);
 
         let mut arr = [5, 2, 4, 6, 1, 3];
-        merge_sort2(&mut arr);
+        let len = arr.len() - 1;
+        merge_sort2(&mut arr, 0, len);
         assert_eq!(arr, [1, 2, 3, 4, 5, 6]);
     }
 }
