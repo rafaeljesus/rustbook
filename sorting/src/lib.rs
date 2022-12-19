@@ -142,6 +142,17 @@ fn merge2(arr: &mut [i32], s: usize, m: usize, e: usize) {
     }
 }
 
+// Time: O(n^2) | Space: O(1)
+pub fn selection_sort(arr: &mut [i32]) {
+    for i in 1..arr.len() {
+        let mut j = i - 1;
+        while j > 0 && arr[j + 1] < arr[j] {
+            arr.swap(j + 1, j);
+            j -= 1;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -163,6 +174,13 @@ mod tests {
         let mut arr = [5, 2, 4, 6, 1, 3];
         let len = arr.len() - 1;
         merge_sort2(&mut arr, 0, len);
+        assert_eq!(arr, [1, 2, 3, 4, 5, 6]);
+    }
+
+    #[test]
+    fn test_selection_sort() {
+        let mut arr = [5, 2, 4, 6, 1, 3];
+        selection_sort(&mut arr);
         assert_eq!(arr, [1, 2, 3, 4, 5, 6]);
     }
 }
