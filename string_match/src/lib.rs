@@ -1,11 +1,14 @@
-// Time: O(nm) | Space: O(1)
+// Time: O(nmc) | Space: O(1)
 pub fn string_match(text: &str, pattern: &str) -> bool {
     let n = text.len();
-    let m = text.len();
-    for i in 0..(n - m) + 1 {
+    let m = pattern.len();
+    for i in 0..=n - m {
         let mut j = 0;
-        // rust indexing in string sucks :/
-        while j < m && &text[..i + j] == &pattern[..j] {
+        // chars().nth() is O(n), strings in rust aren't indexed
+        while j < m
+            && (text.chars().nth(i + j).unwrap() == pattern.chars().nth(j).unwrap()
+                || pattern.chars().nth(j).unwrap() == '*')
+        {
             j += 1;
         }
         if j == m {
@@ -23,9 +26,9 @@ mod tests {
     fn string_match_test() {
         assert_eq!(string_match("abaababbaba", "abba"), true);
         assert_eq!(string_match("abada", "abade"), false);
-        /*assert_eq!(string_match("abada", "ab*"), true);
+        assert_eq!(string_match("abada", "ab*"), true);
         assert_eq!(string_match("abada", "ad*"), true);
         assert_eq!(string_match("abada", "adaa*"), false);
-        assert_eq!(string_match("abada", "*ada"), true);*/
+        assert_eq!(string_match("abada", "*ada"), true);
     }
 }
