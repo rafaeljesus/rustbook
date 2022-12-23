@@ -1,10 +1,11 @@
-// Time: O(nmc) | Space: O(1)
+// Time: O(n^2m) because of the nested loops and the use of text.chars().nth(),
+// which has a runtime complexity of O(n), strings in rust aren't indexed.
+// Space: O(1)
 pub fn string_match(text: &str, pattern: &str) -> bool {
     let n = text.len();
     let m = pattern.len();
     for i in 0..=n - m {
         let mut j = 0;
-        // chars().nth() is O(n), strings in rust aren't indexed
         while j < m
             && (text.chars().nth(i + j).unwrap() == pattern.chars().nth(j).unwrap()
                 || pattern.chars().nth(j).unwrap() == '*')
